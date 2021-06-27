@@ -1,0 +1,15 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+    color: aqua;
+    text-align: center;
+}
+
+#canvas{
+    left: 0px;
+    top: 0px;
+    position: absolute;
+    padding: 10px;
+}
