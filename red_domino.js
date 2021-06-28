@@ -7,11 +7,12 @@ class RedDomino extends VerticalDomino {
     }   
 
     move(){     // Moves right
-        a = this.x + gridSide/2;
-        b = this.y + gridSide/2;
+        let a = this.x + gridSide/2;
+        let b = this.y + gridSide/2;
 
-        grid[b][a] = 0;
-        grid[b + 1][a] = 0;
+        // Erase the reference from the grid only if another domino had not already occupied the positions
+        if (grid[b][a] === this) grid[b][a] = 0;
+        if (grid[b + 1][a] === this) grid[b + 1][a] = 0;
 
         this.x += 1;
         a += 1;

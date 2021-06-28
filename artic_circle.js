@@ -29,58 +29,43 @@ let randomGenerator = {
     // Given the upper-left square of a 2x2 grid, randomly generates two dominoes that fill it
     // Vertical -> yellow and red
     // Horizontal -> blue and green
-    // Note that this method works with coordinates relative to the canvas (-gridSide/2 to gridSide/2 - 1)
     generateDominoes(x, y) {
         if (this.generateBiasedBinary()) {               // Vertical dominoes
-            if ((x + y) % 2 === 0) {  // The upper-left square is black
-                yellowDomino = new YellowDomino(x, y);
-                redDomino = new RedDomino(x + 1, y);
-                return [yellowDomino, redDomino];
-            }
-
-            // The upper-left square is green
-            redDomino = new RedDomino(x, y);
-            yellowDomino = new YellowDomino(x + 1, y);
+            const yellowDomino = new YellowDomino(y, x);
+            const redDomino = new RedDomino(y + 1, x);
             return [yellowDomino, redDomino];
         }
 
         // Horizontal dominoes
-        if ((x + y) % 2 === 0) {   // The upper-left square is black
-            blueDomino = new BlueDomino(x, y);
-            greenDomino = new GreenDomino(x, y + 1);
-            return [blueDomino, greenDomino];
-        }
-
-        // The upper-left square is green
-        greenDomino = new GreenDomino(x, y);
-        blueDomino = new BlueDomino(x, y + 1);
-        return [greenDomino, blueDomino];
+        const blueDomino = new BlueDomino(y, x);
+        const greenDomino = new GreenDomino(y, x + 1);
+        return [blueDomino, greenDomino];
     }
 };
 
 // Iterates through the grid filling 2x2 gaps with new, random dominoes
 function fillGapsRandomly() {
-    /*
-     * When traversing the grid through non-existant tiles (-1), advance from 1
-     * to 1. When the first element different from -1 is encountered in the row,
-     * start advancing from 2 to 2, since it's sufficient to check every 2
-     * columns.
-     *  
-     * Repeat every 2 rows.
-     */
+    let checked = [];   // Tiles already checked
+    for (let i = 0; i < gridSide; i++) {
+        checked.push(new Array(gridSide).fill(0));
+    }
 
-    firstfound = false;
+    // The last row and column do not have to be analyzed
+    for (let i = -gridSide / 2; i < gridSide / 2 - 1; i++) {
+        for (let j = -gridSide / 2; j < gridSide / 2 - 1; j++) {
+            let a = i + gridSide / 2;
+            let b = j + gridSide / 2;
 
-    for (i = -gridSide / 2; i < gridSide / 2; i += 2) {
-        for (j = -gridSide / 2; j < gridSide / 2; j++) {
-            if (grid[i + gridSide / 2][j + gridSide / 2] === 0) {   // Empty
-                firstfound = true;
-
+            if (grid[a][b] === 0
+                && checked[a][b] === 0) {   // Empty and not checked
                 /*
                  * To generate new dominoes we will need the coordinates (in  *the system that ranges from -gridSide/2 to gridSide/2 - 1, so  
                  * we save i and j.
                  */
                 tilesToFill.push([i, j]);
+
+                // Mark the rest of the tiles of the 2x2 square as checked
+                checked[a][b + 1] = checked[a + 1][b + 1] = checked[a + 1][b] = 1;
 
                 // Create an orange square of size 2x2
                 context.fillStyle = "orange";
@@ -88,14 +73,13 @@ function fillGapsRandomly() {
                     canvas.height / 2 + i * dominoScale,
                     2 * dominoScale, 2 * dominoScale);
 
-                // Since the first tile that truly exists was found, start
-                // checking only every 2 columns.
-                j++;
+                // Draw border
+                context.strokeStyle = "black";
+                context.lineWidth = 1.5;
+                context.strokeRect(canvas.width / 2 + j * dominoScale,
+                    canvas.height / 2 + i * dominoScale,
+                    2 * dominoScale, 2 * dominoScale);
             }
-
-            if (i === -gridSide / 2 && j === gridSide / 2)
-                // No empty spots were found in the first row. We can't jump the following one.
-                i--;
         }
     }
 };
@@ -103,14 +87,15 @@ function fillGapsRandomly() {
 // Generate random dominoes for the current iteration and put them in the grid
 function generateNewDominoes() {
     for (let [x, y] of tilesToFill) {
-        [d1, d2] = randomGenerator.generateDominoes(x, y);
+        let [d1, d2] = randomGenerator.generateDominoes(x, y);
         addDominoes(d1, d2);
-
-        tilesToFill.splice(tilesToFill.indexOf([x, y]), 1);
 
         d1.draw();
         d2.draw();
     }
+
+    // All tiles have been processed
+    tilesToFill = [];
 }
 
 function expandGrid() {
@@ -138,8 +123,8 @@ function expandGrid() {
     for (let i = -gridSide / 2; i < gridSide / 2; i++) {
         for (let j = -gridSide / 2; j < gridSide / 2; j++) {
 
-            a = i + gridSide / 2;
-            b = j + gridSide / 2;
+            let a = i + gridSide / 2;
+            let b = j + gridSide / 2;
 
             grid[a][b] = 0;
 
@@ -179,7 +164,7 @@ function allocateDomino(d) {
     grid[d.y + gridSide / 2][d.x + gridSide / 2] = d;
 
     // Store another reference in the other square that it occupies
-    [x, y] = d.square2;
+    const [x, y] = d.square2;
     grid[y + gridSide / 2][x + gridSide / 2] = d;
 }
 
@@ -196,7 +181,7 @@ function drawSquareGrid(n) {
     // For simplicity purposes, the matrix rows and columns range between -n/2 and n/2 -1
     for (let i = -n / 2; i < n / 2; i++) {
         for (let j = -n / 2; j < n / 2; j++) {
-            context.strokeRect(canvas.width / 2 + j * dominoScale, 
+            context.strokeRect(canvas.width / 2 + j * dominoScale,
                 canvas.height / 2 + i * dominoScale,
                 dominoScale, dominoScale);
         }
@@ -221,41 +206,126 @@ function checkCollisions() {
      * each block with the implementation that follows.
      */
 
-    n = Math.floor((gridSide + 2) / 4) * 2;
-    for (i = (gridSide - n) / 2; i < (gridSide + n) / 2; i += 2) {
-        for (j = (gridSide - n) / 2; j < (gridSide + n) / 2; j += 2) {
+    const n = Math.floor((gridSide + 2) / 4) * 2;
+
+    for (let i = (gridSide - n) / 2; i < (gridSide + n) / 2; i += 2) {
+        for (let j = (gridSide - n) / 2; j < (gridSide + n) / 2; j += 2) {
+
             // Check the domino which the arrow is pointing to
             // If there's a collision, delete both dominoes from the grid
             if (grid[i][j] instanceof YellowDomino) {
                 if (grid[i][j - 1] instanceof RedDomino) {
-                    let [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i][j - 1] = grid[y][x - 1] = 0;
+                    // Get the second indexes of the first domino
+                    let [x, y] = getSecondCoordinatesAsIndexes(i, j);
+
+                    // Eliminate the dominoes from the grid
+                    dominoes.splice(dominoes.indexOf(grid[i][j]), 1);
+                    dominoes.splice(dominoes.indexOf(grid[i][j - 1]), 1);
+                    grid[i][j] = grid[x][y] = grid[i][j - 1] = grid[x][y - 1] = 0;
+
+                    // Redraw without the deleted dominoes
+                    // We pass the coordinates of the up-left tile of the square to be erased
+                    cleanSquare(
+                        j - 1 - gridSide / 2,
+                        Math.min(i, x) - gridSide / 2
+                    );
                 }
+
             } else if (grid[i][j] instanceof RedDomino) {
                 if (grid[i][j + 1] instanceof YellowDomino) {
-                    let [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i][j + 1] = grid[y][x + 1] = 0;
+                    // Get the second indexes of the first domino
+                    let [x, y] = getSecondCoordinatesAsIndexes(i, j);
+
+                    // Eliminate the dominoes from the grid
+                    dominoes.splice(dominoes.indexOf(grid[i][j]), 1);
+                    dominoes.splice(dominoes.indexOf(grid[i][j + 1]), 1);
+                    grid[i][j] = grid[x][y] = grid[i][j + 1] = grid[x][y + 1] = 0;
+
+                    // Redraw without the deleted dominoes
+                    // We pass the coordinates of the up-left tile of the square to be erased
+                    cleanSquare(
+                        j - gridSide / 2,
+                        Math.min(i, x) - gridSide / 2
+                    );
                 }
+
             } else if (grid[i][j] instanceof BlueDomino) {
                 if (grid[i - 1][j] instanceof GreenDomino) {
-                    let [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i + 1][j] = grid[y + 1][x] = 0;
+                    // Get the second indexes of the first domino
+                    let [x, y] = getSecondCoordinatesAsIndexes(i, j);
+
+                    // Eliminate the dominoes from the grid
+                    dominoes.splice(dominoes.indexOf(grid[i][j]), 1);
+                    dominoes.splice(dominoes.indexOf(grid[i - 1][j]), 1);
+                    grid[i][j] = grid[x][y] = grid[i - 1][j] = grid[x - 1][y] = 0;
+
+                    // Redraw without the deleted dominoes
+                    // We pass the coordinates of the up-left tile of the square to be erased
+                    cleanSquare(
+                        Math.min(j, y) - gridSide / 2,
+                        i - 1 - gridSide / 2
+                    );
                 }
+
             } else if (grid[i][j] instanceof GreenDomino) {
                 if (grid[i + 1][j] instanceof BlueDomino) {
-                    let [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i - 1][j] = grid[y - 1][x] = 0;
+                    // Get the second indexes of the first domino
+                    let [x, y] = getSecondCoordinatesAsIndexes(i, j);
+                    console.log(`4. Others: ${x}, ${y}`);
+
+                    // Eliminate the dominoes from the grid
+                    dominoes.splice(dominoes.indexOf(grid[i][j]), 1);
+                    dominoes.splice(dominoes.indexOf(grid[i + 1][j]), 1);
+                    grid[i][j] = grid[x][y] = grid[i + 1][j] = grid[x + 1][y] = 0;
+
+                    // Redraw without the deleted dominoes
+                    // We pass the coordinates of the up-left tile of the square to be erased
+                    cleanSquare(
+                        Math.min(j, y) - gridSide / 2,
+                        i - gridSide / 2
+                    );
                 }
+            }
+        }
+    };
+
+    function getSecondCoordinatesAsIndexes(i, j) {
+        // Calculate the second coordinates of the domino
+        // Revert the order to change coordinates into indexes
+        let [y, x] = grid[i][j]
+            .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
+
+        // Convert x and y into positive indexes
+        x += gridSide / 2;
+        y += gridSide / 2;
+
+        return [x, y];
+    };
+
+    function cleanSquare(x, y) {
+        // x -> up-left tile's x coordinate of the square to clean
+        // y -> up-left tile's y coordinate of the square to clean
+
+        // Clear the region
+        context.clearRect(canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + y * dominoScale,
+            2 * dominoScale, 2 * dominoScale);
+
+        // Draw the grid
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
+                context.strokeRect(canvas.width / 2 + (x + i) * dominoScale,
+                    canvas.height / 2 + (y + j) * dominoScale,
+                    dominoScale, dominoScale);
             }
         }
     }
 };
 
-function iterate() {
+function iterateFirst() {
     fillGapsRandomly();
     generateNewDominoes();
     expandGrid();
@@ -271,6 +341,65 @@ function iterate() {
     }
 };
 
+function iterate2() {
+    fillGapsRandomly();
+     generateNewDominoes();
+    expandGrid();
+    checkCollisions();
+
+
+     for (let d of dominoes){
+        d.erase();
+    }
+    console.log(grid);
+
+/*    moveDominoes();
+
+    for (let d of dominoes) {
+        d.draw();
+    } */ 
+};
+
+function iterate3() {
+    fillGapsRandomly();
+    generateNewDominoes();
+    expandGrid();
+    checkCollisions();
+
+    for (let d of dominoes){
+        d.erase();
+    }
+
+    moveDominoes();
+
+/*     // Calculate half of the side of the inner grid
+    const n = Math.floor((gridSide + 2) / 4);
+    context.clearRect(canvas.width / 2 - n * dominoScale,
+        canvas.height / 2 - n * dominoScale,
+        2 * n * dominoScale, 2 * n * dominoScale);
+    // Redraw the inner grid without dominoes
+         drawSquareGrid(2 * n); */
+         for (let d of dominoes) {
+             d.draw();
+         } 
+};
+
+function iterate(){
+    fillGapsRandomly();
+    generateNewDominoes();
+    expandGrid();
+    checkCollisions();
+
+    for (let d of dominoes){
+        d.erase();
+    }
+
+    moveDominoes();
+
+    for (let d of dominoes) {
+        d.draw();
+    } 
+}
 
 window.addEventListener("load", () => {
     // When the window is created, get the reference to the canvas and its context
@@ -283,5 +412,7 @@ window.addEventListener("load", () => {
 
 
     drawSquareGrid(gridSide);          // Draw 2x2 grid
-    iterate();
+    for (let i = 0; i < 4; i++){
+        iterate();
+    }
 });

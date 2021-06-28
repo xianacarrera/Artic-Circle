@@ -28,5 +28,27 @@ class HorizontalDomino extends Domino {
         // Position relative to the center of the canvas (canvas.width/2, canvas.height/2)
         context.fillRect(canvas.width/2 + this.x * dominoScale, canvas.height/2 + this.y * dominoScale,
              2 * dominoScale, dominoScale);
+
+        // Draw the border of the rectangle
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+        context.strokeRect(canvas.width/2 + this.x * dominoScale, canvas.height/2 + this.y * dominoScale,
+            2 * dominoScale, dominoScale);
+    }
+
+    erase(){
+        // Clear the space and redraw borders
+        context.clearRect(canvas.width/2 + this.x * dominoScale, 
+            canvas.height/2 + this.y * dominoScale,
+            2 * dominoScale, dominoScale);
+
+        // Draw the border of the rectangle
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+        context.strokeRect(canvas.width/2 + this.x * dominoScale, 
+            canvas.height/2 + this.y * dominoScale,
+            dominoScale, dominoScale);
+        context.strokeRect(canvas.width/2 + (this.x + 1) * dominoScale, canvas.height/2 + this.y * dominoScale,
+            dominoScale, dominoScale);         
     }
 }
