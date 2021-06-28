@@ -14,8 +14,14 @@ class HorizontalDomino extends Domino {
         return [this.x + 1, this.y];
     }
 
-    move(){
-        super.move();
+    // Returns the coordinates of the domino that are not [z, w]
+    getOtherCoordinates(z, w){
+        [x2, y2] = this.square2;
+        if (this.x === z && this.y === w){
+            return this.square2;
+        } else if (x2 === z && y2 === w){
+            return [this.x, this.y];
+        }
     }
 
     draw(){

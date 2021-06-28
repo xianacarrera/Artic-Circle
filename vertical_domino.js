@@ -15,10 +15,6 @@ class VerticalDomino extends Domino {
         return [this.x, this.y + 1];
     }
 
-    move(){
-        super.move();
-    }
-
     draw(){
         // Position relative to the center of the canvas (canvas.width/2, canvas.height/2)
         context.fillRect(canvas.width/2 + this.x * dominoScale, canvas.height/2 + this.y * dominoScale, 

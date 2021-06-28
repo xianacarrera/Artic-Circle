@@ -7,10 +7,13 @@ class BlueDomino extends HorizontalDomino {
     }   
 
     move(){     // Moves up
-        if (this.hasMoved) return;          // The domino has already moved in this iteration
-        
+        grid[this.y + gridSide/2][this.x + gridSide/2] = 0;
+        grid[this.y + gridSide/2][this.x + gridSide/2 + 1] = 0;
+
         this.y += -1;
-        super.move();   // Register that the domino has moved in this iteration
+
+        grid[this.y + gridSide/2][this.x + gridSide/2] = this;
+        grid[this.y + gridSide/2][this.x + gridSide/2 + 1] = this;
     }
 
     draw(){
