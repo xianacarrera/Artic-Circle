@@ -7,13 +7,17 @@ class YellowDomino extends VerticalDomino {
     }   
 
     move(){     // Moves left
-        grid[this.y + gridSide/2][this.x + gridSide/2] = 0;
-        grid[this.y + gridSide/2 + 1][this.x + gridSide/2] = 0;
+        a = this.x + gridSide/2;
+        b = this.y + gridSide/2;
+
+        grid[b][a] = 0;
+        grid[b + 1][a] = 0;
 
         this.x += -1;
+        a += -1;
         
-        grid[this.y + gridSide/2][this.x + gridSide/2] = this;
-        grid[this.y + gridSide/2 + 1][this.x + gridSide/2] = this;
+        grid[b][a] = this;
+        grid[b + 1][a] = this;
     }
 
     draw(){

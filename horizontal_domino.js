@@ -16,7 +16,7 @@ class HorizontalDomino extends Domino {
 
     // Returns the coordinates of the domino that are not [z, w]
     getOtherCoordinates(z, w){
-        [x2, y2] = this.square2;
+        let [x2, y2] = this.square2;
         if (this.x === z && this.y === w){
             return this.square2;
         } else if (x2 === z && y2 === w){

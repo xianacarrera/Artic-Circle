@@ -7,13 +7,17 @@ class GreenDomino extends HorizontalDomino {
     }   
 
     move(){     // Moves down
-        grid[this.y + gridSide/2][this.x + gridSide/2] = 0;
-        grid[this.y + gridSide/2][this.x + gridSide/2 + 1] = 0;
+        a = this.x + gridSide/2;
+        b = this.y + gridSide/2;
+
+        grid[b][a] = 0;
+        grid[b][a + 1] = 0;
 
         this.y += 1;
+        b += 1;
 
-        grid[this.y + gridSide/2][this.x + gridSide/2] = this;
-        grid[this.y + gridSide/2][this.x + gridSide/2 + 1] = this;
+        grid[b][a] = this;
+        grid[b][a + 1] = this;
     }
 
     draw(){

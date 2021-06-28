@@ -15,7 +15,6 @@ class Domino {
     }
 
     move(){
-        /* some shit*/
         throw new Error("This method is abstract and is yet to be implemented");
     }
 

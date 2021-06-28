@@ -11,87 +11,12 @@ let grid = [[0, 0], [0, 0]];   // Iniatially there are no dominoes
  *    reference to domino in squares occupied by that domino
  */
 
-
+// Dominoes that are present in the grid
 let dominoes = [];
 
+// Upper-left tiles of the orange 2x2 blocks to be filled
+let tilesToFill = [];
 
-function addDominoes(d1, d2) {
-    // Calculate the right positions in the grid and save references to the dominoes there
-    allocateDomino(d1);
-    allocateDomino(d2);
-
-    // Store the dominoes
-    dominoes.push(d1);
-    dominoes.push(d2);
-};
-
-function allocateDomino(d) {
-    // A reference to d is stored at the position that it occupies in the grid matrix.
-    // The dominoes' coordinates range from -gridSide/2 to gridSide/2 - 1
-    grid[d.y + gridSide / 2][d.x + gridSide / 2] = d;
-
-    // Store another reference in the other square that it occupies
-    [x, y] = d.square2;
-    grid[y + gridSide / 2][x + gridSide / 2] = d;
-}
-
-function moveDominoes() {
-    for (let d of dominoes) {
-        d.move();
-    }
-};
-
-// Before making moves, check for dominoes that collide and get rid of them
-function checkCollisions() {
-    /*
-     * Collisions take place in two situations:
-     *   a) There's a red domino to the left of a yellow domino
-     *   b) There's a green domino on top of a blue domino
-     * In those cases, the dominoes' arrows would clash.
-     * 
-     * First of all, we can limit the search to the inner square grid 
-     * (discarding all borders), since it's the only place where
-     * collisions can take place. The side of that grid follows the sequence
-     * 2, 2, 4, 4, 6...
-     * 
-     * Secondly, we do not have to check all squares. If the divide the square
-     * grid into 2x2 blocks, it's sufficient to check the upper-left square of 
-     * each block with the implementation that follows.
-     */
-
-    n = Math.floor((gridSide + 2) / 4) * 2;
-    for (i = (gridSide - n) / 2; i < (gridSide + n) / 2; i += 2) {
-        for (j = (gridSide - n) / 2; j < (gridSide + n) / 2; j += 2) {
-            // Check the domino which the arrow is pointing to
-            // If there's a collision, delete both dominoes from the grid
-            if (grid[i][j] instanceof YellowDomino) {
-                if (grid[i][j - 1] instanceof RedDomino) {
-                    [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i][j - 1] = grid[y][x - 1] = 0;
-                }
-            } else if (grid[i][j] instanceof RedDomino) {
-                if (grid[i][j + 1] instanceof YellowDomino) {
-                    [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i][j + 1] = grid[y][x + 1] = 0;
-                }
-            } else if (grid[i][j] instanceof BlueDomino) {
-                if (grid[i + 1][j] instanceof GreenDomino) {
-                    [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i + 1][j] = grid[y + 1][x] = 0;
-                }
-            } else if (grid[i][j] instanceof GreenDomino) {
-                if (grid[i - 1][j] instanceof BlueDomino) {
-                    [y, x] = grid[i][j]
-                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
-                    grid[i][j] = grid[y][x] = grid[i - 1][j] = grid[y - 1][x] = 0;
-                }
-            }
-        }
-    }
-};
 
 let randomGenerator = {
     bias: 0.5,   // No bias initially
@@ -104,7 +29,7 @@ let randomGenerator = {
     // Given the upper-left square of a 2x2 grid, randomly generates two dominoes that fill it
     // Vertical -> yellow and red
     // Horizontal -> blue and green
-    // Note that this method works with coordinates in the matrix (ranging from 0 to gridSide - 1) and those relative to the canvas (-gridSide/2 to gridSide/2 - 1)
+    // Note that this method works with coordinates relative to the canvas (-gridSide/2 to gridSide/2 - 1)
     generateDominoes(x, y) {
         if (this.generateBiasedBinary()) {               // Vertical dominoes
             if ((x + y) % 2 === 0) {  // The upper-left square is black
@@ -133,88 +58,59 @@ let randomGenerator = {
     }
 };
 
+// Iterates through the grid filling 2x2 gaps with new, random dominoes
+function fillGapsRandomly() {
+    /*
+     * When traversing the grid through non-existant tiles (-1), advance from 1
+     * to 1. When the first element different from -1 is encountered in the row,
+     * start advancing from 2 to 2, since it's sufficient to check every 2
+     * columns.
+     *  
+     * Repeat every 2 rows.
+     */
 
-window.addEventListener("load", () => {
-    // When the window is created, get the reference to the canvas and its context
-    canvas = document.getElementById("canvas");
-    context = canvas.getContext('2d');
+    firstfound = false;
 
-    // Resize the canvas
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
+    for (i = -gridSide / 2; i < gridSide / 2; i += 2) {
+        for (j = -gridSide / 2; j < gridSide / 2; j++) {
+            if (grid[i + gridSide / 2][j + gridSide / 2] === 0) {   // Empty
+                firstfound = true;
 
+                /*
+                 * To generate new dominoes we will need the coordinates (in  *the system that ranges from -gridSide/2 to gridSide/2 - 1, so  
+                 * we save i and j.
+                 */
+                tilesToFill.push([i, j]);
 
-    drawSquareGrid(gridSide);          // Draw 2x2 grid
+                // Create an orange square of size 2x2
+                context.fillStyle = "orange";
+                context.fillRect(canvas.width / 2 + j * dominoScale,
+                    canvas.height / 2 + i * dominoScale,
+                    2 * dominoScale, 2 * dominoScale);
 
-    [domino1, domino2] = randomGenerator.generateDominoes(-1, -1);
-    /*    domino1.draw();
-        domino2.draw(); */
-    addDominoes(domino1, domino2);
-    domino1.draw();
-    domino2.draw();
+                // Since the first tile that truly exists was found, start
+                // checking only every 2 columns.
+                j++;
+            }
 
-    expandGrid();
-
-    moveDominoes();
-
-
-    // Clear the inner grid
-    // Note that this grid has side grid.side - 2, since expandGrid() has increased grid.side by 2
-    context.clearRect(canvas.width / 2 - (gridSide - 2) / 2 * dominoScale,
-        canvas.height / 2 - (gridSide - 2) / 2 * dominoScale,
-        (gridSide - 2) * dominoScale, (gridSide - 2) * dominoScale);
-    // Redraw the inner grid without dominoes
-    drawSquareGrid(gridSide - 2);
-    domino1.draw();
-    domino2.draw();
-
-    fillGapsRandomly();
-
-    /*     domino1.move();
-    domino1.draw();
-    domino2.move();
-    domino2.draw(); */
-    //context.strokeRect(200, 200, 200, 200);
-    context.strokeStyle = "red";
-    context.lineWidth = 5;
-    //// 4 parameters: x, y, width, height
-});
-
-function drawInitialGrid() {
-    // Draw a 2x2 grid at the center of the canvas
-    context.strokeRect(canvas.width / 2 - dominoScale, canvas.height / 2 - dominoScale,
-        dominoScale, dominoScale);      // Up-left 
-    context.strokeRect(canvas.width / 2 - dominoScale, canvas.height / 2, dominoScale, dominoScale);           // Down-left 
-    context.strokeRect(canvas.width / 2, canvas.height / 2 - dominoScale, dominoScale, dominoScale);           // Up-right
-    context.strokeRect(canvas.width / 2, canvas.height / 2, dominoScale, dominoScale);                // Down-right
-}
-
-// Draws a square grid of side length n
-function drawSquareGrid(n) {
-    context.strokeStyle = "black";
-
-    // For simplicity purposes, the matrix rows and columns range between -n/2 and n/2 -1
-    for (let i = -n / 2; i < n / 2; i++) {
-        for (let j = -n / 2; j < n / 2; j++) {
-            context.strokeRect(canvas.width / 2 + j * dominoScale, canvas.height / 2 + i * dominoScale,
-                dominoScale, dominoScale);
+            if (i === -gridSide / 2 && j === gridSide / 2)
+                // No empty spots were found in the first row. We can't jump the following one.
+                i--;
         }
     }
-}
+};
 
+// Generate random dominoes for the current iteration and put them in the grid
+function generateNewDominoes() {
+    for (let [x, y] of tilesToFill) {
+        [d1, d2] = randomGenerator.generateDominoes(x, y);
+        addDominoes(d1, d2);
 
-function nextIteration() {
-    // Increase the size of the grid
-    expandGrid();
+        tilesToFill.splice(tilesToFill.indexOf([x, y]), 1);
 
-    // Move all the dominoes
-    for (let d of dominoes) {
-        // The order in which the dominoes of the current iteration move does not matter
-        // It is certain that there will be no collisions when all have moved
-        d.move();
+        d1.draw();
+        d2.draw();
     }
-
-    // Generate the new dominoes
 }
 
 function expandGrid() {
@@ -247,26 +143,11 @@ function expandGrid() {
 
             grid[a][b] = 0;
 
-            /*             // Delete previous border marks (-1)
-                        // Fill the previous rows in the new columns with 0s
-                        if (grid[a][b] === -1 || grid[a][b] === undefined)
-                            grid[a][b] = 0;*/
-
-            // TODO: THIS FDKSJFLKDSJFSKLJFSKLJFSLKJFSLKFJSL
             if (Math.abs(i + j + 1) === gridSide / 2 || Math.abs(i - j) === gridSide / 2) {
                 context.strokeRect(canvas.width / 2 + j * dominoScale,
                     canvas.height / 2 + i * dominoScale,
                     dominoScale, dominoScale);
-
-                // Mark the grid as empty in these squares
-                grid[a][b] = 0;
-
             } else if (Math.abs(i + j + 1) > gridSide / 2 || Math.abs(i - j) > gridSide / 2) {
-                // Mark the grid as non-existant in these squares
-                grid[a][b] = -1;
-            }
-
-            if (Math.abs(i + j + 1) > gridSide / 2 || Math.abs(i - j) > gridSide / 2) {
                 // Mark the grid as non-existant in these squares
                 grid[a][b] = -1;
             }
@@ -282,21 +163,125 @@ function expandGrid() {
 
 };
 
-// Iterates through the grid filling 2x2 gaps with new, random dominoes
-function fillGapsRandomly() {
-    // It's sufficient to check the upper-left tiles of the 2x2 blocks
-    // that compose the inner grid
+function addDominoes(d1, d2) {
+    // Calculate the right positions in the grid and save references to the dominoes there
+    allocateDomino(d1);
+    allocateDomino(d2);
+
+    // Store the dominoes
+    dominoes.push(d1);
+    dominoes.push(d2);
+};
+
+function allocateDomino(d) {
+    // A reference to d is stored at the position that it occupies in the grid matrix.
+    // The dominoes' coordinates range from -gridSide/2 to gridSide/2 - 1
+    grid[d.y + gridSide / 2][d.x + gridSide / 2] = d;
+
+    // Store another reference in the other square that it occupies
+    [x, y] = d.square2;
+    grid[y + gridSide / 2][x + gridSide / 2] = d;
+}
+
+function moveDominoes() {
+    for (let d of dominoes) {
+        d.move();
+    }
+};
+
+// Draws a square grid of side length n
+function drawSquareGrid(n) {
+    context.strokeStyle = "black";
+
+    // For simplicity purposes, the matrix rows and columns range between -n/2 and n/2 -1
+    for (let i = -n / 2; i < n / 2; i++) {
+        for (let j = -n / 2; j < n / 2; j++) {
+            context.strokeRect(canvas.width / 2 + j * dominoScale, 
+                canvas.height / 2 + i * dominoScale,
+                dominoScale, dominoScale);
+        }
+    }
+};
+
+// Before making moves, check for dominoes that collide and get rid of them
+function checkCollisions() {
+    /*
+     * Collisions take place in two situations:
+     *   a) There's a red domino to the left of a yellow domino
+     *   b) There's a green domino on top of a blue domino
+     * In those cases, the dominoes' arrows would clash.
+     * 
+     * First of all, we can limit the search to the inner square grid 
+     * (discarding all borders), since it's the only place where
+     * collisions can take place. The side of that grid follows the sequence
+     * 2, 2, 4, 4, 6...
+     * 
+     * Secondly, we do not have to check all squares. If the divide the square
+     * grid into 2x2 blocks, it's sufficient to check the upper-left square of 
+     * each block with the implementation that follows.
+     */
+
     n = Math.floor((gridSide + 2) / 4) * 2;
     for (i = (gridSide - n) / 2; i < (gridSide + n) / 2; i += 2) {
         for (j = (gridSide - n) / 2; j < (gridSide + n) / 2; j += 2) {
-            if (grid[i][j] === 0){   // Empty
-                // Create an orange square of size 2x2
-                context.fillStyle = "orange";
-                context.fillRect(canvas.width / 2 + (j + gridSide/2) * dominoScale, canvas.height / 2 + (i + gridSide/2) * dominoScale,
-                    2 * dominoScale, 2 * dominoScale);
-
-                //[d1, d2] = randomGenerator.generateDominoes(i, j);
+            // Check the domino which the arrow is pointing to
+            // If there's a collision, delete both dominoes from the grid
+            if (grid[i][j] instanceof YellowDomino) {
+                if (grid[i][j - 1] instanceof RedDomino) {
+                    let [y, x] = grid[i][j]
+                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
+                    grid[i][j] = grid[y][x] = grid[i][j - 1] = grid[y][x - 1] = 0;
+                }
+            } else if (grid[i][j] instanceof RedDomino) {
+                if (grid[i][j + 1] instanceof YellowDomino) {
+                    let [y, x] = grid[i][j]
+                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
+                    grid[i][j] = grid[y][x] = grid[i][j + 1] = grid[y][x + 1] = 0;
+                }
+            } else if (grid[i][j] instanceof BlueDomino) {
+                if (grid[i - 1][j] instanceof GreenDomino) {
+                    let [y, x] = grid[i][j]
+                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
+                    grid[i][j] = grid[y][x] = grid[i + 1][j] = grid[y + 1][x] = 0;
+                }
+            } else if (grid[i][j] instanceof GreenDomino) {
+                if (grid[i + 1][j] instanceof BlueDomino) {
+                    let [y, x] = grid[i][j]
+                        .getOtherCoordinates(j - gridSide / 2, i - gridSide / 2);
+                    grid[i][j] = grid[y][x] = grid[i - 1][j] = grid[y - 1][x] = 0;
+                }
             }
         }
     }
-}
+};
+
+function iterate() {
+    fillGapsRandomly();
+    generateNewDominoes();
+    expandGrid();
+    checkCollisions();
+    moveDominoes();
+    context.clearRect(canvas.width / 2 - (gridSide - 2) / 2 * dominoScale,
+        canvas.height / 2 - (gridSide - 2) / 2 * dominoScale,
+        (gridSide - 2) * dominoScale, (gridSide - 2) * dominoScale);
+    // Redraw the inner grid without dominoes
+    drawSquareGrid(gridSide - 2);
+    for (let d of dominoes) {
+        d.draw();
+    }
+};
+
+
+window.addEventListener("load", () => {
+    // When the window is created, get the reference to the canvas and its context
+    canvas = document.getElementById("canvas");
+    context = canvas.getContext('2d');
+
+    // Resize the canvas
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+
+
+    drawSquareGrid(gridSide);          // Draw 2x2 grid
+    iterate();
+});
