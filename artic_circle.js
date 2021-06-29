@@ -2,6 +2,9 @@ let canvas;
 let context;
 let dominoScale = 50;
 
+const sequence = [fillGapsRandomly, generateNewDominoes, fitToCanvas, expandGrid, checkCollisions, dance];
+let step = 0;
+
 let gridSide = 2;
 let grid = [[0, 0], [0, 0]];   // Iniatially there are no dominoes    
 /*
@@ -16,7 +19,6 @@ let dominoes = [];
 
 // Upper-left tiles of the orange 2x2 blocks to be filled
 let tilesToFill = [];
-
 
 let randomGenerator = {
     bias: 0.5,   // No bias initially
@@ -68,20 +70,38 @@ function fillGapsRandomly() {
                 checked[a][b + 1] = checked[a + 1][b + 1] = checked[a + 1][b] = 1;
 
                 // Create an orange square of size 2x2
-                context.fillStyle = "orange";
-                context.fillRect(canvas.width / 2 + j * dominoScale,
+                animateRect(canvas.width / 2 + j * dominoScale,
                     canvas.height / 2 + i * dominoScale,
-                    2 * dominoScale, 2 * dominoScale);
-
-                // Draw border
-                context.strokeStyle = "black";
-                context.lineWidth = 1.5;
-                context.strokeRect(canvas.width / 2 + j * dominoScale,
-                    canvas.height / 2 + i * dominoScale,
-                    2 * dominoScale, 2 * dominoScale);
+                    2 * dominoScale, 2 * dominoScale,
+                    0, "orange");
             }
         }
     }
+};
+
+
+
+function animateRect(x, y, width, height, alpha, color) {
+    if (alpha >= 1) {
+        context.globalAlpha = 1;
+        return;
+    }
+
+    context.globalAlpha = alpha;
+
+    context.fillStyle = color;
+    context.fillRect(x, y, width, height);
+
+    // Draw border
+    context.strokeStyle = "black";
+    context.lineWidth = 1.5;
+    context.strokeRect(x, y, width, height);
+
+    // Increase opacity
+    alpha += 0.1;
+
+    // Recursive calls
+    setTimeout(animateRect.bind(null, x, y, width, height, alpha, color), 100);
 };
 
 // Generate random dominoes for the current iteration and put them in the grid
@@ -98,7 +118,7 @@ function generateNewDominoes() {
     tilesToFill = [];
 }
 
-function expandGrid() {
+async function expandGrid() {
     // The grids must be squared and their sides must have even lenghts
     gridSide += 2;
     // Two new rows of length gridSide will be needed
@@ -129,9 +149,12 @@ function expandGrid() {
             grid[a][b] = 0;
 
             if (Math.abs(i + j + 1) === gridSide / 2 || Math.abs(i - j) === gridSide / 2) {
-                context.strokeRect(canvas.width / 2 + j * dominoScale,
+                animateRect(canvas.width / 2 + j * dominoScale,
                     canvas.height / 2 + i * dominoScale,
-                    dominoScale, dominoScale);
+                    dominoScale, dominoScale, 0, "white");
+/*                 context.strokeRect(canvas.width / 2 + j * dominoScale,
+                    canvas.height / 2 + i * dominoScale,
+                    dominoScale, dominoScale); */
             } else if (Math.abs(i + j + 1) > gridSide / 2 || Math.abs(i - j) > gridSide / 2) {
                 // Mark the grid as non-existant in these squares
                 grid[a][b] = -1;
@@ -145,7 +168,6 @@ function expandGrid() {
     for (let d of dominoes) {
         allocateDomino(d);
     }
-
 };
 
 function addDominoes(d1, d2) {
@@ -188,6 +210,31 @@ function drawSquareGrid(n) {
     }
 };
 
+function fitToCanvas() {
+    // Resize the picture if necessary
+    console.log(`Size ${(gridSide + 2) * dominoScale} and limit ${4 / 5 * Math.min(canvas.width, canvas.height)}`);
+    if ((gridSide + 2) * dominoScale >= 4 / 5 * Math.min(canvas.width, canvas.height)) {
+        console.log("true");
+        // The new length will be 0.55 * the smallest side
+        const l = 0.55 * Math.min(canvas.width, canvas.height);
+
+        // Calculate the new size for the squares given length l
+        // Fit 25 squares in l
+        dominoScale = Math.floor(l / 25);
+
+        // Clear the canvas
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Recreate the inner grid
+        drawSquareGrid(Math.floor((gridSide + 2) / 4) * 2);
+        // Draw all the dominoes
+        for (let d of dominoes) {
+            d.draw();
+        }
+        // The rest of the grid will appear when the function expandGrid() executes
+    }
+}
+
 // Before making moves, check for dominoes that collide and get rid of them
 function checkCollisions() {
     /*
@@ -196,20 +243,11 @@ function checkCollisions() {
      *   b) There's a green domino on top of a blue domino
      * In those cases, the dominoes' arrows would clash.
      * 
-     * First of all, we can limit the search to the inner square grid 
-     * (discarding all borders), since it's the only place where
-     * collisions can take place. The side of that grid follows the sequence
-     * 2, 2, 4, 4, 6...
-     * 
-     * Secondly, we do not have to check all squares. If the divide the square
-     * grid into 2x2 blocks, it's sufficient to check the upper-left square of 
-     * each block with the implementation that follows.
+     * Since this function is executed after expandGrid(), but before moveDominoes(), the first and last rows and columns do not have to be studied.
      */
 
-    const n = Math.floor((gridSide + 2) / 4) * 2;
-
-    for (let i = (gridSide - n) / 2; i < (gridSide + n) / 2; i += 2) {
-        for (let j = (gridSide - n) / 2; j < (gridSide + n) / 2; j += 2) {
+    for (let i = 1; i < gridSide - 1; i++) {
+        for (let j = 1; j < gridSide - 1; j++) {
 
             // Check the domino which the arrow is pointing to
             // If there's a collision, delete both dominoes from the grid
@@ -271,7 +309,6 @@ function checkCollisions() {
                 if (grid[i + 1][j] instanceof BlueDomino) {
                     // Get the second indexes of the first domino
                     let [x, y] = getSecondCoordinatesAsIndexes(i, j);
-                    console.log(`4. Others: ${x}, ${y}`);
 
                     // Eliminate the dominoes from the grid
                     dominoes.splice(dominoes.indexOf(grid[i][j]), 1);
@@ -307,9 +344,9 @@ function checkCollisions() {
         // y -> up-left tile's y coordinate of the square to clean
 
         // Clear the region
-        context.clearRect(canvas.width / 2 + x * dominoScale,
+        animateRect(canvas.width / 2 + x * dominoScale,
             canvas.height / 2 + y * dominoScale,
-            2 * dominoScale, 2 * dominoScale);
+            2 * dominoScale, 2 * dominoScale, 0, "white");
 
         // Draw the grid
         context.strokeStyle = "black";
@@ -321,84 +358,77 @@ function checkCollisions() {
                     canvas.height / 2 + (y + j) * dominoScale,
                     dominoScale, dominoScale);
             }
+        } 
+    }
+};
+
+//let time = 1000;
+
+/*function iterate() {
+    setTimeout(fillGapsRandomly, time += 1000);
+    setTimeout(generateNewDominoes, time += 1000);
+    setTimeout(fitToCanvas, time += 1000);
+    setTimeout(expandGrid, time += 1000);
+    checkCollisions();
+
+    for (let d of dominoes) {
+        d.erase();
+    }
+
+    setTimeout(moveDominoes();
+
+    setTimeout(() => {
+        for (let d of dominoes) {
+            d.draw();
         }
-    }
-};
+    }, time += 1000);
 
-function iterateFirst() {
-    fillGapsRandomly();
-    generateNewDominoes();
-    expandGrid();
-    checkCollisions();
-    moveDominoes();
-    context.clearRect(canvas.width / 2 - (gridSide - 2) / 2 * dominoScale,
-        canvas.height / 2 - (gridSide - 2) / 2 * dominoScale,
-        (gridSide - 2) * dominoScale, (gridSide - 2) * dominoScale);
-    // Redraw the inner grid without dominoes
-    drawSquareGrid(gridSide - 2);
+};*/
+
+async function dance() {
     for (let d of dominoes) {
-        d.draw();
+        await d.erase();
     }
-};
 
-function iterate2() {
-    fillGapsRandomly();
-     generateNewDominoes();
-    expandGrid();
-    checkCollisions();
-
-
-     for (let d of dominoes){
-        d.erase();
-    }
-    console.log(grid);
-
-/*    moveDominoes();
+    await moveDominoes();
 
     for (let d of dominoes) {
-        d.draw();
-    } */ 
+        await d.draw();
+    }
 };
 
-function iterate3() {
-    fillGapsRandomly();
-    generateNewDominoes();
-    expandGrid();
-    checkCollisions();
-
-    for (let d of dominoes){
-        d.erase();
-    }
-
-    moveDominoes();
-
-/*     // Calculate half of the side of the inner grid
-    const n = Math.floor((gridSide + 2) / 4);
-    context.clearRect(canvas.width / 2 - n * dominoScale,
-        canvas.height / 2 - n * dominoScale,
-        2 * n * dominoScale, 2 * n * dominoScale);
-    // Redraw the inner grid without dominoes
-         drawSquareGrid(2 * n); */
-         for (let d of dominoes) {
-             d.draw();
-         } 
+async function iterate() {
+    await fillGapsRandomly();
+    await generateNewDominoes();
+    await fitToCanvas();
+    await expandGrid();
+    await checkCollisions();
+    await dance();
 };
 
-function iterate(){
-    fillGapsRandomly();
-    generateNewDominoes();
-    expandGrid();
-    checkCollisions();
-
-    for (let d of dominoes){
-        d.erase();
+async function go() {
+    let count = 0;
+    while (count < 6) {
+        let stepFunction = sequence[step];
+        await stepFunction();
+        if (step === sequence.length - 1) count++;
+        step = (step + 1) % sequence.length;
     }
+}
 
-    moveDominoes();
+/* function go([current, ...remaining]) {
+    // do whatever you need to do for the current item.
+    current();
 
-    for (let d of dominoes) {
-        d.draw();
-    } 
+    // if there are items remaining, set a timeout to
+    // call this function again with the remaining items
+    if (remaining.length) {
+        setTimeout(() => go(remaining), 1000);
+    }
+} */
+
+function waitFor(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 window.addEventListener("load", () => {
@@ -406,13 +436,11 @@ window.addEventListener("load", () => {
     canvas = document.getElementById("canvas");
     context = canvas.getContext('2d');
 
-    // Resize the canvas
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-
 
     drawSquareGrid(gridSide);          // Draw 2x2 grid
-    for (let i = 0; i < 4; i++){
-        iterate();
-    }
+    /*     for (let i = 0; i < 25; i++) {
+            iterate();
+        } */
+
+    iterate();
 });

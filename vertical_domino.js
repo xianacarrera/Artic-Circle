@@ -25,24 +25,29 @@ class VerticalDomino extends Domino {
         }
     }
 
-    draw() {
+    async draw() {
         // Position relative to the center of the canvas (canvas.width/2, canvas.height/2)
-        context.fillRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
+        await animateRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
+            dominoScale, 2 * dominoScale, 0, context.fillStyle);
+/*         context.fillRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
             dominoScale, 2 * dominoScale);
 
         // Draw the border of the rectangle
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale);
+            dominoScale, 2 * dominoScale);*/ 
     }
 
-    erase() {
+    async erase() {
         // Clear the space and redraw borders
-        context.clearRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale);
+        await animateRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
+            dominoScale, 2 * dominoScale, 0, "white");
 
-        // Draw the border of the rectangle
+/*         context.clearRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
+            dominoScale, 2 * dominoScale);*/
+
+        // Draw the border of the squares
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(canvas.width / 2 + this.x * dominoScale, 
@@ -50,6 +55,6 @@ class VerticalDomino extends Domino {
             dominoScale, dominoScale);
         context.strokeRect(canvas.width / 2 + this.x * dominoScale, 
             canvas.height / 2 + (this.y + 1) * dominoScale,
-            dominoScale, dominoScale);
+            dominoScale, dominoScale); 
     }
 }
