@@ -25,9 +25,9 @@ class VerticalDomino extends Domino {
         }
     }
 
-    async draw() {
+    draw() {
         // Position relative to the center of the canvas (canvas.width/2, canvas.height/2)
-        await animateRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
+        animateAppearingRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
             dominoScale, 2 * dominoScale, 0, context.fillStyle);
 /*         context.fillRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
             dominoScale, 2 * dominoScale);
@@ -39,22 +39,29 @@ class VerticalDomino extends Domino {
             dominoScale, 2 * dominoScale);*/ 
     }
 
-    async erase() {
+    drawWithoutAnimation(x = this.x, y = this.y){
+        context.fillRect(canvas.width / 2 + x * dominoScale, canvas.height / 2 + y * dominoScale,
+            dominoScale, 2 * dominoScale);
+    }
+
+    drawBorders(){
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+        context.strokeRect(
+            canvas.width / 2 + this.x * dominoScale,
+            canvas.height / 2 + this.y * dominoScale,
+            dominoScale,
+            2 * dominoScale
+        );
+    }
+
+    erase(x = this.x, y = this.y) {
         // Clear the space and redraw borders
-        await animateRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale, 0, "white");
+        context.clearRect(canvas.width / 2 + x * dominoScale, canvas.height / 2 + y * dominoScale,
+            dominoScale, 2 * dominoScale);
 
 /*         context.clearRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
             dominoScale, 2 * dominoScale);*/
 
-        // Draw the border of the squares
-        context.strokeStyle = "black";
-        context.lineWidth = 1.5;
-        context.strokeRect(canvas.width / 2 + this.x * dominoScale, 
-            canvas.height / 2 + this.y * dominoScale,
-            dominoScale, dominoScale);
-        context.strokeRect(canvas.width / 2 + this.x * dominoScale, 
-            canvas.height / 2 + (this.y + 1) * dominoScale,
-            dominoScale, dominoScale); 
     }
 }
