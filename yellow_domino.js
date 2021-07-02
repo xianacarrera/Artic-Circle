@@ -1,9 +1,13 @@
 // Vertical domino whose upper tile is black (even parity)
 class YellowDomino extends VerticalDomino {
+    static color = "yellow";
+
     constructor(x, y) {
         super(x, y);
+    }
 
-        this.color = "yellow";
+    get color() {
+        return YellowDomino.color;
     }
 
     move() {
@@ -11,16 +15,41 @@ class YellowDomino extends VerticalDomino {
         this.dx = -0.02;
         this.varX = this.x;
         this.varY = this.y;
-        this.rAF;
 
         this.updateGridPosition();
 
-        // Animate the movement
-        this.rAF = requestAnimationFrame(this.moveAnimation.bind(this));
+        if (showAnimations) {
+            // Animate the movement
+            this.rAF = requestAnimationFrame(this.moveAnimation.bind(this));
+        } else {
+            // Erase the current position
+            this.erase(this.varX, this.varY);
+            // Redraw the border of the initial squares
+            context.strokeStyle = "black";
+            context.lineWidth = 1.5;
+            context.strokeRect(
+                canvas.width / 2 + (this.x + 1) * dominoScale,
+                canvas.height / 2 + this.y * dominoScale,
+                dominoScale,
+                dominoScale
+            );
+            context.strokeRect(
+                canvas.width / 2 + (this.x + 1) * dominoScale,
+                canvas.height / 2 + (this.y + 1) * dominoScale,
+                dominoScale,
+                dominoScale
+            );
+
+            // Draw the domino in the ending position
+            this.draw();
+
+            // Redraw the borders of the ending squares
+            this.drawBorders();
+        }
     }
 
     moveAnimation() {
-        this.erase(this.varX, this.varY); // Erase the current position and redraw the borders of the inital squares
+        this.erase(this.varX, this.varY); // Erase the current position
 
         // Redraw the border of the initial squares
         context.strokeStyle = "black";
@@ -53,12 +82,12 @@ class YellowDomino extends VerticalDomino {
         );
 
         this.varX += this.dx;
-        context.fillStyle = this.color;
+        context.fillStyle = YellowDomino.color;
         this.drawWithoutAnimation(this.varX, this.varY);
 
         // When the domino has moved 1 position, stop
         // this.x has already been updated in updateGridPosition
-        if (Math.abs(this.x - this.varX) <= 0.01){
+        if (Math.abs(this.x - this.varX) <= 0.01) {
             cancelAnimationFrame(this.rAF);
             return;
         }
@@ -83,7 +112,13 @@ class YellowDomino extends VerticalDomino {
     }
 
     draw(x = this.x, y = this.y) {
-        context.fillStyle = this.color;
-        super.draw(x, y);
+        context.fillStyle = YellowDomino.color;
+        if (showAnimations){
+            super.draw(x, y);
+            return;
+        }
+
+        super.drawWithoutAnimation(x, y);
+        this.drawBorders(x, y);
     }
 }

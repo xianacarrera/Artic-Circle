@@ -29,39 +29,46 @@ class VerticalDomino extends Domino {
         // Position relative to the center of the canvas (canvas.width/2, canvas.height/2)
         animateAppearingRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
             dominoScale, 2 * dominoScale, 0, context.fillStyle);
-/*         context.fillRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale);
-
-        // Draw the border of the rectangle
-        context.strokeStyle = "black";
-        context.lineWidth = 1.5;
-        context.strokeRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale);*/ 
     }
 
-    drawWithoutAnimation(x = this.x, y = this.y){
+    drawWithoutAnimation(x = this.x, y = this.y) {
         context.fillRect(canvas.width / 2 + x * dominoScale, canvas.height / 2 + y * dominoScale,
             dominoScale, 2 * dominoScale);
     }
 
-    drawBorders(){
+    drawBorders(x = this.x, y = this.y) {
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+        context.strokeRect(
+            canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + y * dominoScale,
+            dominoScale,
+            2 * dominoScale
+        );
+    }
+
+    drawGrid(x = this.x, y = this.y) {
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(
             canvas.width / 2 + this.x * dominoScale,
             canvas.height / 2 + this.y * dominoScale,
             dominoScale,
-            2 * dominoScale
+            dominoScale
+        );
+        context.strokeRect(
+            canvas.width / 2 + this.x * dominoScale,
+            canvas.height / 2 + (this.y + 1) * dominoScale,
+            dominoScale,
+            dominoScale
         );
     }
 
+
     erase(x = this.x, y = this.y) {
         // Clear the space and redraw borders
-        context.clearRect(canvas.width / 2 + x * dominoScale, canvas.height / 2 + y * dominoScale,
-            dominoScale, 2 * dominoScale);
-
-/*         context.clearRect(canvas.width / 2 + this.x * dominoScale, canvas.height / 2 + this.y * dominoScale,
-            dominoScale, 2 * dominoScale);*/
-
+        // Stretch the domino a little to account for precision errors
+        context.clearRect(canvas.width / 2 + x * dominoScale - 0.5, canvas.height / 2 + y * dominoScale - 0.5,
+            dominoScale + 1, 2 * dominoScale + 1);
     }
 }

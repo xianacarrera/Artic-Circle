@@ -36,14 +36,6 @@ class HorizontalDomino extends Domino {
             0,
             context.fillStyle
         );
-        /*         context.fillRect(canvas.width/2 + this.x * dominoScale, canvas.height/2 + this.y * dominoScale,
-             2 * dominoScale, dominoScale);
-
-        // Draw the border of the rectangle
-        context.strokeStyle = "black";
-        context.lineWidth = 1.5;
-        context.strokeRect(canvas.width/2 + this.x * dominoScale, canvas.height/2 + this.y * dominoScale,
-            2 * dominoScale, dominoScale); */
     }
 
     drawWithoutAnimation(x = this.x, y = this.y) {
@@ -55,24 +47,42 @@ class HorizontalDomino extends Domino {
         );
     }
 
-    drawBorders() {
+    drawBorders(x = this.x, y = this.y) {
+        context.strokeStyle = "black";
+        context.lineWidth = 1.5;
+        context.strokeRect(
+            canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + y * dominoScale,
+            2 * dominoScale,
+            dominoScale
+        );
+    }
+
+    drawGrid(x = this.x, y = this.y){
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(
             canvas.width / 2 + this.x * dominoScale,
             canvas.height / 2 + this.y * dominoScale,
-            2 * dominoScale,
+            dominoScale,
+            dominoScale
+        );
+        context.strokeRect(
+            canvas.width / 2 + (this.x + 1) * dominoScale,
+            canvas.height / 2 + this.y * dominoScale,
+            dominoScale,
             dominoScale
         );
     }
 
     erase(x = this.x, y = this.y) {
         // Clear the space and redraw borders
+        // Stretch the domino a little to account for precision errors
         context.clearRect(
-            canvas.width / 2 + x * dominoScale,
-            canvas.height / 2 + y * dominoScale,
-            2 * dominoScale,
-            dominoScale
+            canvas.width / 2 + x * dominoScale - 0.5,
+            canvas.height / 2 + y * dominoScale - 0.5,
+            2 * dominoScale + 1,
+            dominoScale + 1
         );
     }
 }

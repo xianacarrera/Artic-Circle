@@ -1,10 +1,10 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
+html{
+    height: 100%;
 }
 
-h1 {
-    color: aqua;
-    text-align: center;
+body {
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
 }
 
 #canvas{
@@ -12,4 +12,300 @@ h1 {
     top: 0px;
     position: absolute;
     padding: 10px;
+}
+
+#user-settings {
+    background-color: #292929;
+    position: absolute;
+    width: 30%;
+    height: 900px;
+    padding: 20px;
+    top: 0;
+    right: -10px;
+}
+
+p {
+    color: #ffffff;
+}
+
+
+/***********************************************/
+
+h1 {
+    color: aqua;
+    text-align: center;
+    font-family: fantasy;
+    text-emphasis: bold;
+    font-size: 45px;
+    position: relative;
+    top: -20px;
+    height: 20px;
+}
+
+.buttonContainer {
+    text-align: center;
+}
+
+.btn {
+    height: 40px;
+    width: 100px;
+    display: inline-block;
+    border: 0.1em solid #FFFFFF;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    text-decoration: none;
+    background-color: #444444;
+    color:#FFFFFF;
+    font-size: medium;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+/* The buttons turn to white when hovering */
+.btn:hover{
+    color:#000000;
+    background-color:#FFFFFF;
+}
+
+@media all and (max-width:30em){
+    .btn{
+        display:block;
+    }
+}
+
+/* Affects all direct descendants */
+.buttonContainer > *{
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+#buttonContainer1{
+    padding-top: 20px;
+}
+
+#buttonContainer2{
+    padding-top: 20px;
+    padding-bottom: 30px;
+}
+
+
+
+/**********************************************/
+
+
+/* Horizontal line */
+hr.rounded {
+    background-color: white;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+
+h2 {
+    color: aqua;
+    text-align: center;
+    text-emphasis: bold;
+    font-size: 30px;
+}
+
+.text{
+    font-size: 14px;
+}
+
+ul{
+    list-style-type: circle;
+    list-style-position: outside;
+}
+
+li{
+    color: white;
+    position: relative;
+    left: 30px;
+    font-size: 14px;
+}
+
+.slider {
+    -webkit-appearance: none;   /* Override default */
+    appearance: none;
+    /* The bar will have less height than the cursor */
+    height: 12px;
+    border-radius: 5px;      /* Round borders */
+    position: relative;
+    display: inline-block;
+    width: 50%;
+    top: 16px;
+    left: 100px;
+    background-color: white;
+    outline: none;
+    opacity: 0.75;
+    /* When hovering on the slider, change opacity to 100% */
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* Chrome, Opera, Safari, Edge */
+.slider::-webkit-slider-thumb {     /* Slider cursor appearance */
+    -webkit-appearance: none;   /* Override default */
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    /* Circle */
+    border-radius: 50%; 
+    background-color: blue;
+    cursor: pointer;
+}
+  
+/* Firefox */
+.slider::-moz-range-thumb {         /* Slider cursor appearance */
+    width: 25px;
+    height: 25px;
+    /* Circle */
+    border-radius: 50%;
+    background-color: blue;
+    cursor: pointer;
+}
+
+.sliderContainer {
+    position: relative;
+    height: 50px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.sliderInfo {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    left: 0;
+    width: 30%;
+    font-weight: bold;
+}
+
+.sliderValue {
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    right: 0;
+    width: 15%;
+    font-weight: bold;
+}
+
+
+/******************************************/
+
+.switchContainer{
+    position: relative;
+    top: -20px;
+    width: 400px;
+    padding-top: 30px;
+}
+
+#switchContainer2{
+    margin-top: 10px;
+}
+
+.switchLeftText{
+    position: absolute;
+    display: inline-block;
+    /* Two lines */
+    width: 8em;
+    height: 16em;
+    text-align: right;
+    left: 0;
+}
+
+.switchRightText{
+    position: absolute;
+    display: inline-block;
+    /* Two lines */
+    width: 8em;
+    height: 16em;
+    right: 0;
+    text-align: left;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    left: 40%;
+    top: 12px;
+}
+
+#switch1 {
+    top: 20px;
+}
+
+/* Hide the default checkbox of the switch */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider background */
+.switchSlider{
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #0000ff;
+    border-radius: 34px;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+/* Slider ball */
+.switchSlider:before{
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    right: 4px;
+    top: 4px;
+    background-color: gray;
+    border-radius: 50%;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .switchSlider {
+    background-color: aqua;
+}
+  
+input:focus + .switchSlider:before {
+    box-shadow: 0 0 1px #0F2080;
+}
+  
+input:checked + .switchSlider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+
+/**********************************************/
+
+.bottomText{
+    position: relative;
+    text-align: center;
+}
+
+img {
+    position: absolute;
+    left: 40%;
+    height: 100px;
 }

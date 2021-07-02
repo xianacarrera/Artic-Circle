@@ -16,9 +16,4 @@ class Domino {
     move(){
         throw new Error("This method is abstract and is yet to be implemented");
     }
-
-    draw(){
-        context.fillStyle = this.color;
-        super.draw();
-    }
 }

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Artic Circle</title>
 
     <link rel="stylesheet" href="style.css">
     <script src="domino.js"></script>
@@ -16,16 +16,76 @@
     <script src="yellow_domino.js"></script>
     <script src="artic_circle.js"></script>
 </head>
+
 <body>
-    <canvas id="canvas" width="1400" height="900">Your browser does not support canvas</canvas>
-    <!--
+    <canvas id="canvas" width="1000" height="750">Your browser does not support canvas</canvas>
+
+
     <div id="user-settings">
-        <button type="button" class="btn" onclick="play()">Play</button>
-        <button type="button" class="btn" onClick="stop()">Pause</button>
-        <button type="button" class="btn" onClick="step()">Step</button>
-        <button type="button" class="btn" onclick="reset()">Reset</button>
+        <h1>Artic Circle</h1>
+
+        <div class="buttonContainer" id="buttonContainer1">
+            <button type="button" class="btn" onclick="play()">Play</button>
+            <button type="button" class="btn" onClick="pause()">Pause</button>
+        </div>
+        <div class="buttonContainer" id="buttonContainer2">
+            <button type="button" class="btn" onClick="doStep()">Step</button>
+            <button type="button" class="btn" onClick="doIteration()">Iteration</button>
+            <button type="button" class="btn" onclick="reset()">Reset</button>
+        </div>
+
+        <hr class="rounded">  <!-- Horizontal line with rounded borders -->
+
+        <h2>Settings</h2>
+
+        <p class="text">Bias: Tweak randomness in the orientation of the generated dominoes.</p>
+        <!-- List of two points -->
+        <u1>
+            <li>0: all new dominoes are vertical.</li>
+            <li>100: all new dominoes are horizontal.</li>
+        </u1>
+        <div class="sliderContainer">
+            <p class="sliderInfo">Bias value</p>
+            <input type="range" min="0" max="100" value="50" class="slider" id="biasSlider">
+            <p class="sliderValue" id="biasText"></p>
+        </div>
+
+        <p class="text">Step delay: Add a certain delay between each step of the animation.</p>
+        <div class="sliderContainer">
+            <p class="sliderInfo">Step delay</p>
+            <input type="range" min="0" max="10" value="0" class="slider" id="delaySlider">
+            <p class="sliderValue" id="delayText"></p>
+        </div>
+
+        <div class="switchContainer" id="switchContainer1">
+            <p class="switchLeftText">Default color palette</p>
+            <label class="switch" id="switch1">
+                <input type="checkbox" id="toggleColor">
+                <span class="switchSlider"></span>
+            </label>
+            <p class="switchRightText">Daltonic-friendly palette</p>
+        </div>
+
+        <div class="switchContainer" id="switchContainer2">
+            <p class="switchLeftText">Animations OFF</p>
+            <label class="switch">
+                <input type="checkbox" id="toggleAnimations">
+                <span class="switchSlider"></span>
+            </label>
+            <p class="switchRightText">Animations ON</p>
+        </div>
+
+
+
+        <hr class="rounded">  <!-- Horizontal line with rounded borders -->
+
+        <p class="bottomText">Xiana Carrera Alonso</p>
+        <p class="bottomText">Inspired by <a href="https://youtu.be/Yy7Q8IWNfHM">Mathologer</a></p>
+
+        <img src="artic_circle.png" alt="Artic Circle">
+
     </div>
--->
 
 </body>
+
 </html>

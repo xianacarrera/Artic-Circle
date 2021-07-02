@@ -1,9 +1,13 @@
 // Horizontal domino whose left tile is green (odd parity)
 class GreenDomino extends HorizontalDomino {
+    static color = "green";
+    
     constructor(x, y) {
         super(x, y);
+    }
 
-        this.color = "green";
+    get color() {
+        return GreenDomino.color;
     }
 
     move() {
@@ -14,8 +18,34 @@ class GreenDomino extends HorizontalDomino {
 
         this.updateGridPosition();
 
-        // Animate the movement
-        this.rAF = requestAnimationFrame(this.moveAnimation.bind(this));
+        if (showAnimations) {
+            // Animate the movement
+            this.rAF = requestAnimationFrame(this.moveAnimation.bind(this));
+        } else {
+            // Erase the current position
+            this.erase(this.varX, this.varY);
+            // Redraw the border of the initial squares
+            context.strokeStyle = "black";
+            context.lineWidth = 1.5;
+            context.strokeRect(
+                canvas.width / 2 + this.x * dominoScale,
+                canvas.height / 2 + (this.y - 1) * dominoScale,
+                dominoScale,
+                dominoScale
+            );
+            context.strokeRect(
+                canvas.width / 2 + (this.x + 1) * dominoScale,
+                canvas.height / 2 + (this.y - 1) * dominoScale,
+                dominoScale,
+                dominoScale
+            );
+
+            // Draw the domino in the ending position
+            this.draw();
+
+            // Redraw the borders of the ending squares
+            this.drawBorders();
+        }
     }
 
     moveAnimation(){
@@ -52,7 +82,7 @@ class GreenDomino extends HorizontalDomino {
         );
 
         this.varY += this.dy;
-        context.fillStyle = this.color;
+        context.fillStyle = GreenDomino.color;
         this.drawWithoutAnimation(this.varX, this.varY);
 
         // When the domino has moved 1 position, stop
@@ -82,7 +112,13 @@ class GreenDomino extends HorizontalDomino {
     }
 
     draw(x = this.x, y = this.y) {
-        context.fillStyle = this.color;
-        super.draw(x, y);
+        context.fillStyle = GreenDomino.color;
+        if (showAnimations){
+            super.draw(x, y);
+            return;
+        }
+
+        super.drawWithoutAnimation(x, y);
+        this.drawBorders(x, y);
     }
 }
