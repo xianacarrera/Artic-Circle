@@ -25,20 +25,7 @@ class BlueDomino extends HorizontalDomino {
             // Erase the current position
             this.erase(this.varX, this.varY);
             // Redraw the border of the initial squares
-            context.strokeStyle = "black";
-            context.lineWidth = 1.5;
-            context.strokeRect(
-                canvas.width / 2 + this.x * dominoScale,
-                canvas.height / 2 + (this.y + 1) * dominoScale,
-                dominoScale,
-                dominoScale
-            );
-            context.strokeRect(
-                canvas.width / 2 + (this.x + 1) * dominoScale,
-                canvas.height / 2 + (this.y + 1) * dominoScale,
-                dominoScale,
-                dominoScale
-            );
+            this.drawGrid(this.x, this.y + 1);
 
             // Draw the domino in the ending position
             this.draw();
@@ -52,34 +39,10 @@ class BlueDomino extends HorizontalDomino {
         this.erase(this.varX, this.varY); // Erase the current position and redraw the borders of the inital squares
 
         // Redraw the borders
-        context.strokeStyle = "black";
-        context.lineWidth = 1.5;
-        context.strokeRect(
-            canvas.width / 2 + this.x * dominoScale,
-            canvas.height / 2 + (this.y + 1) * dominoScale,
-            dominoScale,
-            dominoScale
-        );
-        context.strokeRect(
-            canvas.width / 2 + (this.x + 1) * dominoScale,
-            canvas.height / 2 + (this.y + 1) * dominoScale,
-            dominoScale,
-            dominoScale
-        );
+        this.drawGrid(this.x, this.y + 1);
 
         // Redraw the borders of the two squares of the ending position, too, in case the domino was in the middle of both
-        context.strokeRect(
-            canvas.width / 2 + this.x * dominoScale,
-            canvas.height / 2 + this.y * dominoScale,
-            dominoScale,
-            dominoScale
-        );
-        context.strokeRect(
-            canvas.width / 2 + (this.x + 1) * dominoScale,
-            canvas.height / 2 + this.y * dominoScale,
-            dominoScale,
-            dominoScale
-        );
+        this.drawGrid(this.x, this.y);
 
         this.varY += this.dy;
         context.fillStyle = BlueDomino.color;

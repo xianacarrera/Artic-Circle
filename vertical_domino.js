@@ -51,14 +51,14 @@ class VerticalDomino extends Domino {
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(
-            canvas.width / 2 + this.x * dominoScale,
-            canvas.height / 2 + this.y * dominoScale,
+            canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + y * dominoScale,
             dominoScale,
             dominoScale
         );
         context.strokeRect(
-            canvas.width / 2 + this.x * dominoScale,
-            canvas.height / 2 + (this.y + 1) * dominoScale,
+            canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + (y + 1) * dominoScale,
             dominoScale,
             dominoScale
         );

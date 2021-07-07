@@ -62,14 +62,14 @@ class HorizontalDomino extends Domino {
         context.strokeStyle = "black";
         context.lineWidth = 1.5;
         context.strokeRect(
-            canvas.width / 2 + this.x * dominoScale,
-            canvas.height / 2 + this.y * dominoScale,
+            canvas.width / 2 + x * dominoScale,
+            canvas.height / 2 + y * dominoScale,
             dominoScale,
             dominoScale
         );
         context.strokeRect(
-            canvas.width / 2 + (this.x + 1) * dominoScale,
-            canvas.height / 2 + this.y * dominoScale,
+            canvas.width / 2 + (x + 1) * dominoScale,
+            canvas.height / 2 + y * dominoScale,
             dominoScale,
             dominoScale
         );
