@@ -12,7 +12,7 @@ The following image shows a preview of the page:
 Inspired by Mathologer's Artic Circle Theorem [video](https://youtu.be/Yy7Q8IWNfHM). Based on the paper [Random Domino Tilings and the Arctic Circle Theorem](https://arxiv.org/abs/math/9801068) by William Jockusch, James Propp and Peter Shor.
 
 ## Explanation
-The purpose of this interactive demo was to show the behaviour of the [Aztec Diamond](https://en.wikipedia.org/wiki/Aztec_diamond), both for mathematical interest and as a way for me to learn more about JavaScript, as this was my first project using the language.
+The purpose of this interactive visualization was to show the behaviour of the [Aztec Diamond](https://en.wikipedia.org/wiki/Aztec_diamond), both for mathematical interest and as a way for me to learn more about JavaScript, as this was my first project using the language.
 
 This combinatorial problem presents a grid in the shape of a diamond, divided into squared tiles. To be precise, an Aztec Diamond of dimension $n$ consists of all the tiles whose centers $(x, y)$ satisfy $|x| + |y| \leq n$.
 
